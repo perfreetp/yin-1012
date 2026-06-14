@@ -1,0 +1,242 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  composes: pageContainer from global;
+  padding-top: $spacing-lg;
+  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
+}
+
+.overallCard {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-dark 100%);
+  border-radius: $radius-lg;
+  padding: $spacing-xl;
+  margin-bottom: $spacing-lg;
+  color: $color-text-white;
+  box-shadow: 0 8rpx 32rpx rgba($color-primary, 0.25);
+}
+
+.overallTitle {
+  font-size: $font-size-md;
+  opacity: 0.85;
+  margin-bottom: $spacing-lg;
+}
+
+.overallGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-lg;
+}
+
+.overallItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.overallLabel {
+  font-size: $font-size-xs;
+  opacity: 0.7;
+}
+
+.overallValue {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  line-height: 1.1;
+  display: flex;
+  align-items: baseline;
+  gap: 4rpx;
+}
+
+.overallUnit {
+  font-size: $font-size-xs;
+  opacity: 0.7;
+  font-weight: $font-weight-normal;
+}
+
+.tabBar {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+  background: $color-bg-card;
+  padding: $spacing-xs;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+}
+
+.tabItem {
+  flex: 1;
+  padding: $spacing-sm;
+  border-radius: $radius-md;
+  text-align: center;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.85;
+  }
+}
+
+.tabItemActive {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+  box-shadow: 0 4rpx 12rpx rgba($color-primary, 0.25);
+}
+
+.tableCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-lg;
+}
+
+.tableHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-lg;
+  padding-bottom: $spacing-md;
+  border-bottom: 2rpx solid $color-divider;
+}
+
+.tableTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.tableCount {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  background: $color-bg-page;
+  padding: 4rpx 16rpx;
+  border-radius: $radius-button;
+}
+
+.tableHead {
+  display: grid;
+  gap: $spacing-xs;
+  padding: $spacing-sm 0;
+  border-bottom: 1rpx solid $color-divider;
+  margin-bottom: $spacing-xs;
+}
+
+.headCell {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  font-weight: $font-weight-medium;
+}
+
+.tableBody {
+  display: flex;
+  flex-direction: column;
+}
+
+.tableRow {
+  display: grid;
+  gap: $spacing-xs;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+  align-items: center;
+  transition: background $transition-fast;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:active {
+    background: $color-bg-hover;
+    margin: 0 #{-$spacing-lg};
+    padding-left: $spacing-lg;
+    padding-right: $spacing-lg;
+    border-radius: $radius-md;
+  }
+}
+
+.rowCell {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rowName {
+  font-weight: $font-weight-semibold;
+  font-size: $font-size-md;
+}
+
+.rowSub {
+  display: block;
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  font-weight: $font-weight-normal;
+  margin-top: 2rpx;
+}
+
+.lossGood {
+  color: $color-success;
+  font-weight: $font-weight-semibold;
+}
+
+.lossNormal {
+  color: $color-warning;
+  font-weight: $font-weight-semibold;
+}
+
+.lossBad {
+  color: $color-error;
+  font-weight: $font-weight-semibold;
+}
+
+.rankBadge {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: $radius-round;
+  background: $color-bg-page;
+  @include flex-center;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+  color: $color-text-tertiary;
+  flex-shrink: 0;
+}
+
+.rankTop1 {
+  background: linear-gradient(135deg, #FCD34D, #F59E0B);
+  color: #fff;
+}
+
+.rankTop2 {
+  background: linear-gradient(135deg, #E2E8F0, #94A3B8);
+  color: #fff;
+}
+
+.rankTop3 {
+  background: linear-gradient(135deg, #FED7AA, #D97706);
+  color: #fff;
+}
+
+.grid3 {
+  grid-template-columns: 48rpx 1fr 100rpx 100rpx;
+}
+
+.grid4 {
+  grid-template-columns: 48rpx 1fr 80rpx 80rpx 90rpx;
+}
+
+.grid5 {
+  grid-template-columns: 48rpx 1fr 70rpx 80rpx 90rpx;
+}
+
+.emptyState {
+  padding: $spacing-xl * 2;
+  text-align: center;
+}
+
+.emptyText {
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+}

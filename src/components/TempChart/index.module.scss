@@ -1,0 +1,90 @@
+@use '@/styles/variables.scss' as *;
+
+.chartCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-md;
+}
+
+.title {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.legend {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.legendLine {
+  width: 32rpx;
+  height: 6rpx;
+  border-radius: $radius-round;
+}
+
+.legendText {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.stats {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+}
+
+.statItem {
+  flex: 1;
+  text-align: center;
+}
+
+.statLabel {
+  display: block;
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: 4rpx;
+}
+
+.statValue {
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+}
+
+.empty {
+  height: 320rpx;
+  @include flex-center;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+}
+
+.emptyText {
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+}
+
+.canvas {
+  display: none;
+}
+
+.svgContainer {
+  margin: 0 auto;
+  overflow: hidden;
+}

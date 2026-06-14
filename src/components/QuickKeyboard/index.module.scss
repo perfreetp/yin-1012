@@ -1,0 +1,121 @@
+@use '@/styles/variables.scss' as *;
+
+.keyboard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: $spacing-md;
+}
+
+.title {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.hint {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.row {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.key {
+  flex: 1;
+  background: $color-bg-keyboard;
+  border-radius: $radius-md;
+  padding: $spacing-md $spacing-sm;
+  border-left: 6rpx solid $color-border;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 130rpx;
+  transition: all $transition-fast;
+  position: relative;
+
+  &:active {
+    transform: scale(0.96);
+    opacity: 0.85;
+  }
+}
+
+.keyActive {
+  background: $color-bg-hover;
+  box-shadow: inset 0 0 0 2rpx rgba($color-primary, 0.3);
+}
+
+.keyBadge {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  min-width: 36rpx;
+  height: 36rpx;
+  line-height: 36rpx;
+  text-align: center;
+  padding: 0 8rpx;
+  border-radius: $radius-xs;
+  font-size: 20rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+}
+
+.keyLabel {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-top: 8rpx;
+}
+
+.keyLabelActive {
+  font-weight: $font-weight-bold;
+}
+
+.keyTemp {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 4rpx;
+}
+
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: $spacing-lg;
+  margin-top: $spacing-lg;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+  flex-wrap: wrap;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.legendDot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: $radius-round;
+}
+
+.legendText {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}

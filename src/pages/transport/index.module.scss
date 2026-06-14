@@ -1,0 +1,335 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  composes: pageContainer from global;
+  padding-top: $spacing-lg;
+  padding-bottom: calc(240rpx + env(safe-area-inset-bottom));
+}
+
+.tripInfo {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-dark 100%);
+  border-radius: $radius-lg;
+  padding: $spacing-xl;
+  margin-bottom: $spacing-lg;
+  color: $color-text-white;
+  box-shadow: 0 8rpx 32rpx rgba($color-primary, 0.25);
+}
+
+.routeRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+}
+
+.routePoint {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.routePointLabel {
+  font-size: $font-size-xs;
+  opacity: 0.7;
+}
+
+.routePointName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+}
+
+.routeLine {
+  flex: 1;
+  height: 4rpx;
+  background: rgba(255, 255, 255, 0.3);
+  position: relative;
+
+  &::after {
+    content: '→';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 28rpx;
+  }
+}
+
+.tempOverview {
+  display: flex;
+  gap: $spacing-lg;
+  padding-top: $spacing-lg;
+  border-top: 1rpx solid rgba(255, 255, 255, 0.2);
+}
+
+.tempStat {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.tempIcon {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: $radius-md;
+  background: rgba(255, 255, 255, 0.15);
+  @include flex-center;
+  font-size: 36rpx;
+}
+
+.tempInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.tempLabel {
+  font-size: $font-size-xs;
+  opacity: 0.7;
+}
+
+.tempValue {
+  font-size: 36rpx;
+  font-weight: $font-weight-bold;
+}
+
+.section {
+  margin-bottom: $spacing-lg;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-md;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.sectionMore {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.actionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-md;
+}
+
+.actionCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-xl $spacing-lg;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+  border-top: 6rpx solid transparent;
+
+  &:active {
+    transform: scale(0.98);
+    box-shadow: $shadow-card-hover;
+  }
+}
+
+.actionStart {
+  border-top-color: $color-success;
+}
+
+.actionStop {
+  border-top-color: $color-warning;
+}
+
+.actionTemp {
+  border-top-color: $color-cold;
+}
+
+.actionSeal {
+  border-top-color: $color-info;
+}
+
+.actionHeader {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-sm;
+}
+
+.actionIcon {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: $radius-md;
+  @include flex-center;
+  font-size: 28rpx;
+}
+
+.actionName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.actionDesc {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-md;
+  line-height: 1.5;
+}
+
+.actionBtn {
+  width: 100%;
+  height: $button-height-md;
+  border-radius: $radius-button;
+  color: $color-text-white;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  @include button-reset;
+  @include flex-center;
+
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.timeline {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.timelineItem {
+  display: flex;
+  gap: $spacing-md;
+  padding-bottom: $spacing-lg;
+  position: relative;
+
+  &:last-child {
+    padding-bottom: 0;
+
+    &::after {
+      display: none;
+    }
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 23rpx;
+    top: 56rpx;
+    bottom: 0;
+    width: 2rpx;
+    background: $color-divider;
+  }
+}
+
+.timelineDot {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: $radius-round;
+  @include flex-center;
+  flex-shrink: 0;
+  font-size: 20rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+}
+
+.timelineContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.timelineTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: 4rpx;
+}
+
+.timelineMeta {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.timelineDetail {
+  margin-top: $spacing-xs;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.batchSelectCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-md;
+}
+
+.batchTag {
+  display: inline-block;
+  padding: 6rpx 16rpx;
+  border-radius: $radius-xs;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  margin-right: $spacing-sm;
+  margin-bottom: $spacing-sm;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.inputGroup {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.inputItem {
+  flex: 1;
+}
+
+.inputLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-xs;
+  display: block;
+}
+
+.inputField {
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  text-align: center;
+  min-height: 80rpx;
+}
+
+.inputSuffix {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-left: $spacing-xs;
+  display: inline-block;
+}
+
+.emptyState {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-xl * 2;
+  text-align: center;
+  box-shadow: $shadow-card;
+}
+
+.emptyIcon {
+  font-size: 80rpx;
+  margin-bottom: $spacing-md;
+}
+
+.emptyText {
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+}
