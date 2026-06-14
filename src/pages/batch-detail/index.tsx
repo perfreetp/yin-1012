@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, ScrollView } from '@tarojs/components';
+import { View, Text, ScrollView, Image, Button } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import classnames from 'classnames';
 import styles from './index.module.scss';
@@ -191,18 +191,73 @@ const BatchDetailPage: React.FC = () => {
         </View>
       </View>
 
-      {batch.sealNo && (
+      {(batch.sealNo || batch.sealPhoto) && (
         <View className={styles.sectionCard}>
           <View className={styles.sectionTitle}>
             <Text className={styles.title}>🔒 封签信息</Text>
+            <Button
+              onClick={() => {
+                Taro.chooseImage({
+                  count: 1,
+                  sizeType: ['compressed'],
+                  sourceType: ['camera', 'album'],
+                  success: (res) => {
+                    const tempFilePaths = res.tempFilePaths || (res as any).tempFiles?.map((f: any) => f.path);
+                    if (tempFilePaths && tempFilePaths.length > 0) {
+                      Taro.getFileSystemManager().readFile({
+                        filePath: tempFilePaths[0],
+                        encoding: 'base64',
+                        success: (r) => {
+                          const photo = 'data:image/jpeg;base64,' + r.data;
+                          const { updateBatch } = useAppStore.getState();
+                          updateBatch(batch.id, { sealPhoto: photo });
+                          setBatch(prev => prev ? { ...prev, sealPhoto: photo } : prev);
+                          Taro.showToast({ title: '照片已保存', icon: 'success' });
+                        },
+                        fail: () => {
+                          const { updateBatch } = useAppStore.getState();
+                          updateBatch(batch.id, { sealPhoto: tempFilePaths[0] });
+                          setBatch(prev => prev ? { ...prev, sealPhoto: tempFilePaths[0] } : prev);
+                          Taro.showToast({ title: '照片已保存', icon: 'success' });
+                        }
+                      });
+                    }
+                  }
+                });
+              }}
+              style={{
+                padding: '0 24rpx', height: '56rpx', borderRadius: '28rpx',
+                fontSize: '24rpx', background: 'rgba(14,165,233,0.1)', color: '#0284C7', fontWeight: 500,
+              }}
+            >
+              {batch.sealPhoto ? '📷 补拍' : '📷 拍照片'}
+            </Button>
           </View>
           <View className={styles.sealCard}>
             <Text className={styles.sealIcon}>🔐</Text>
             <View className={styles.sealInfo}>
               <Text className={styles.sealLabel}>封签号</Text>
-              <Text className={styles.sealValue}>{batch.sealNo}</Text>
+              <Text className={styles.sealValue}>{batch.sealNo || '（未录入编号）'}</Text>
             </View>
           </View>
+          {batch.sealPhoto && (
+            <View style={{ marginTop: '24rpx' }}>
+              <Image
+                src={batch.sealPhoto}
+                mode="widthFix"
+                style={{ width: '100%', borderRadius: '16rpx', maxHeight: '500rpx' }}
+                onClick={() => {
+                  Taro.previewImage({
+                    urls: [batch.sealPhoto!],
+                    current: batch.sealPhoto,
+                  });
+                }}
+              />
+              <Text style={{ fontSize: '22rpx', color: '#94A3B8', marginTop: '12rpx', display: 'block', textAlign: 'center' }}>
+                点击可放大查看
+              </Text>
+            </View>
+          )}
         </View>
       )}
 

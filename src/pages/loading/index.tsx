@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { View, Text, Input, Picker, Button, ScrollView } from '@tarojs/components';
-import Taro, { useDidShow } from '@tarojs/taro';
+import Taro, { useDidShow, useDidHide } from '@tarojs/taro';
 import classnames from 'classnames';
 import dayjs from 'dayjs';
 import styles from './index.module.scss';
@@ -28,6 +28,10 @@ const LoadingPage: React.FC = () => {
     addBatch,
   } = useAppStore();
 
+  const [showNewTripModal, setShowNewTripModal] = useState(false);
+  const [newTripRoute, setNewTripRoute] = useState('');
+  const [newTripStartBase, setNewTripStartBase] = useState('');
+  const [newTripEndMarket, setNewTripEndMarket] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [basketCount, setBasketCount] = useState<number>(30);
   const [plot, setPlot] = useState('');
@@ -38,22 +42,81 @@ const LoadingPage: React.FC = () => {
   const [precoolStatus, setPrecoolStatus] = useState<PrecoolStatus>('completed');
   const [pressureRisk, setPressureRisk] = useState(false);
 
+  const basketInputRef = useRef<any>(null);
+
+  const handleKeyPress = useCallback((e: KeyboardEvent) => {
+    const key = e.key.toUpperCase();
+    const matched = categories.find(c => c.shortKey.toUpperCase() === key);
+    if (matched) {
+      e.preventDefault();
+      setSelectedCategory(matched);
+      setPressureRisk(matched.pressureRisk);
+      const newBatchNo = `B${dayjs().format('MMDD')}-${String((currentTrip?.batches.length || 0) + 1).padStart(3, '0')}`;
+      setBatchNo(newBatchNo);
+      Taro.vibrateShort && Taro.vibrateShort({ type: 'light' });
+      setTimeout(() => {
+        if (basketInputRef.current) {
+          const inputEl = basketInputRef.current;
+          if (inputEl.focus) inputEl.focus();
+          if (inputEl.setSelectionRange && String(basketCount).length > 0) {
+            try { inputEl.setSelectionRange(0, String(basketCount).length); } catch {}
+          }
+        }
+      }, 50);
+      console.log('[LoadingPage] quick key selected:', matched.shortKey, matched.name);
+    }
+  }, [categories, currentTrip, basketCount]);
+
   useEffect(() => {
     init();
   }, [init]);
 
   useDidShow(() => {
     init();
+    if (typeof window !== 'undefined') {
+      window.addEventListener('keydown', handleKeyPress);
+    }
   });
 
+  useDidHide(() => {
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('keydown', handleKeyPress);
+    }
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('keydown', handleKeyPress);
+      return () => window.removeEventListener('keydown', handleKeyPress);
+    }
+  }, [handleKeyPress]);
+
   const handleCreateTrip = () => {
+    setShowNewTripModal(true);
+    setNewTripStartBase('');
+    setNewTripEndMarket('');
+    setNewTripRoute('');
+  };
+
+  const handleConfirmCreateTrip = () => {
+    const startBase = newTripStartBase || BASES[0];
+    const endMarket = newTripEndMarket || MARKETS[0];
+    const route = newTripRoute || `${startBase} → ${endMarket}`;
+
     const trip = createNewTrip({
       driverName: '司机',
       plateNo: '',
       createdAt: formatTime(),
+      route,
+      startBase,
+      endMarket,
+      status: 'loading',
     });
+    setShowNewTripModal(false);
+    setBase(startBase);
+    setTargetMarket(endMarket);
     Taro.showToast({ title: '新趟次已创建', icon: 'success' });
-    console.log('[LoadingPage] createTrip:', trip.id);
+    console.log('[LoadingPage] createTrip:', trip.id, route);
   };
 
   const handleSelectCategory = (cat: Category) => {
@@ -214,9 +277,11 @@ const LoadingPage: React.FC = () => {
                     <Text>−</Text>
                   </View>
                   <Input
+                    ref={basketInputRef}
                     className={styles.numInput}
                     type="number"
                     value={String(basketCount)}
+                    focus={!!selectedCategory}
                     onInput={(e) => setBasketCount(Number(e.detail.value) || 0)}
                   />
                   <View className={styles.numBtn} onClick={() => setBasketCount(basketCount + 1)}>
@@ -357,19 +422,135 @@ const LoadingPage: React.FC = () => {
         <View style={{ height: '180rpx' }} />
       </View>
 
-      <View className={styles.submitRow}>
-        <Button
-          className={styles.secondaryBtn}
-          onClick={() => {
-            Taro.switchTab({ url: '/pages/transport/index' });
-          }}
-        >
-          <Text>开始运输</Text>
-        </Button>
-        <Button className={styles.primaryBtn} onClick={handleAddBatch}>
-          <Text>+ 录入批次</Text>
-        </Button>
-      </View>
+      {currentTrip && (
+        <View className={styles.submitRow}>
+          <Button
+            className={styles.secondaryBtn}
+            onClick={() => {
+              if (currentTrip.batches.length > 0) {
+                updateCurrentTrip({
+                  status: 'transit',
+                  departureTime: formatTime(),
+                  batches: currentTrip.batches.map(b => ({ ...b, status: 'transit' }))
+                });
+                Taro.showToast({ title: '已发车，状态更新为运输中', icon: 'success' });
+                console.log('[LoadingPage] start transit, trip:', currentTrip.id);
+              }
+              Taro.switchTab({ url: '/pages/transport/index' });
+            }}
+          >
+            <Text>开始运输</Text>
+          </Button>
+          <Button className={styles.primaryBtn} onClick={handleAddBatch}>
+            <Text>+ 录入批次</Text>
+          </Button>
+        </View>
+      )}
+
+      {showNewTripModal && (
+        <View style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.5)', zIndex: 1000,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: '32rpx',
+        }} onClick={() => setShowNewTripModal(false)}>
+          <View onClick={e => e.stopPropagation()} style={{
+            background: '#fff', borderRadius: '24rpx', padding: '48rpx 32rpx',
+            width: '100%', maxWidth: '640rpx',
+          }}>
+            <Text style={{ fontSize: '34rpx', fontWeight: 600, color: '#0F172A', marginBottom: '12rpx', display: 'block' }}>
+              🚛 新建运输趟次
+            </Text>
+            <Text style={{ fontSize: '24rpx', color: '#94A3B8', marginBottom: '32rpx', display: 'block' }}>
+              请填写本趟运输的基础信息，后续统计会按这些维度汇总
+            </Text>
+
+            <View style={{ marginBottom: '24rpx' }}>
+              <Text style={{ fontSize: '26rpx', color: '#475569', marginBottom: '12rpx', display: 'block', fontWeight: 500 }}>
+                起始基地
+              </Text>
+              <Picker
+                range={BASES}
+                value={BASES.indexOf(newTripStartBase)}
+                onChange={(e) => {
+                  const val = BASES[Number(e.detail.value)];
+                  setNewTripStartBase(val);
+                  if (!newTripRoute && newTripEndMarket) {
+                    setNewTripRoute(`${val} → ${newTripEndMarket}`);
+                  } else if (!newTripRoute) {
+                    setNewTripRoute(val);
+                  }
+                }}
+              >
+                <View style={{
+                  padding: '24rpx 28rpx', borderRadius: '16rpx',
+                  background: '#F8FAFC', fontSize: '28rpx', color: newTripStartBase ? '#0F172A' : '#94A3B8',
+                }}>
+                  {newTripStartBase || '请选择起始基地'}
+                </View>
+              </Picker>
+            </View>
+
+            <View style={{ marginBottom: '24rpx' }}>
+              <Text style={{ fontSize: '26rpx', color: '#475569', marginBottom: '12rpx', display: 'block', fontWeight: 500 }}>
+                目标市场
+              </Text>
+              <Picker
+                range={MARKETS}
+                value={MARKETS.indexOf(newTripEndMarket)}
+                onChange={(e) => {
+                  const val = MARKETS[Number(e.detail.value)];
+                  setNewTripEndMarket(val);
+                  if (!newTripRoute && newTripStartBase) {
+                    setNewTripRoute(`${newTripStartBase} → ${val}`);
+                  } else if (!newTripRoute) {
+                    setNewTripRoute(val);
+                  }
+                }}
+              >
+                <View style={{
+                  padding: '24rpx 28rpx', borderRadius: '16rpx',
+                  background: '#F8FAFC', fontSize: '28rpx', color: newTripEndMarket ? '#0F172A' : '#94A3B8',
+                }}>
+                  {newTripEndMarket || '请选择目标市场'}
+                </View>
+              </Picker>
+            </View>
+
+            <View style={{ marginBottom: '32rpx' }}>
+              <Text style={{ fontSize: '26rpx', color: '#475569', marginBottom: '12rpx', display: 'block', fontWeight: 500 }}>
+                线路名称
+              </Text>
+              <Input
+                placeholder="如：寿光-北京新发地"
+                value={newTripRoute}
+                onInput={e => setNewTripRoute(e.detail.value)}
+                style={{
+                  padding: '24rpx 28rpx', borderRadius: '16rpx',
+                  background: '#F8FAFC', fontSize: '28rpx',
+                }}
+              />
+            </View>
+
+            <View style={{ display: 'flex', gap: '24rpx' }}>
+              <Button
+                onClick={() => setShowNewTripModal(false)}
+                style={{
+                  flex: 1, height: '80rpx', borderRadius: '48rpx',
+                  background: '#F1F5F9', color: '#475569', fontSize: '28rpx', fontWeight: 500,
+                }}
+              >取消</Button>
+              <Button
+                onClick={handleConfirmCreateTrip}
+                style={{
+                  flex: 1, height: '80rpx', borderRadius: '48rpx',
+                  background: 'linear-gradient(135deg, #0EA5E9, #0284C7)', color: '#fff', fontSize: '28rpx', fontWeight: 600,
+                }}
+              >创建趟次</Button>
+            </View>
+          </View>
+        </View>
+      )}
     </ScrollView>
   );
 };

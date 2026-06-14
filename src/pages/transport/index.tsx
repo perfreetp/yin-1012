@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Input, Button, ScrollView } from '@tarojs/components';
+import { View, Text, Input, Button, ScrollView, Image } from '@tarojs/components';
 import Taro, { useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
 import styles from './index.module.scss';
@@ -24,6 +24,7 @@ const TransportPage: React.FC = () => {
   const [humidity, setHumidity] = useState<string>('85');
   const [selectedBatchId, setSelectedBatchId] = useState<string>('');
   const [sealNo, setSealNo] = useState('');
+  const [sealPhoto, setSealPhoto] = useState<string>('');
   const [coolerRunning, setCoolerRunning] = useState(false);
 
   useEffect(() => {
@@ -98,16 +99,49 @@ const TransportPage: React.FC = () => {
     console.log('[TransportPage] temp recorded:', temp, hum);
   };
 
+  const handleTakeSealPhoto = () => {
+    Taro.chooseImage({
+      count: 1,
+      sizeType: ['compressed'],
+      sourceType: ['camera', 'album'],
+      success: (res) => {
+        const tempFilePaths = res.tempFilePaths || (res as any).tempFiles?.map((f: any) => f.path);
+        if (tempFilePaths && tempFilePaths.length > 0) {
+          Taro.getFileSystemManager().readFile({
+            filePath: tempFilePaths[0],
+            encoding: 'base64',
+            success: (r) => {
+              const base64 = 'data:image/jpeg;base64,' + r.data;
+              setSealPhoto(base64);
+              Taro.showToast({ title: '照片已拍摄', icon: 'success' });
+            },
+            fail: () => {
+              setSealPhoto(tempFilePaths[0]);
+            }
+          });
+        }
+      }
+    });
+  };
+
   const handleSubmitSeal = () => {
     if (!selectedBatchId) {
       Taro.showToast({ title: '请选择批次', icon: 'none' });
       return;
     }
-    updateBatch(selectedBatchId, { sealNo });
+    if (!sealNo && !sealPhoto) {
+      Taro.showToast({ title: '请输入封签号或拍摄照片', icon: 'none' });
+      return;
+    }
+    updateBatch(selectedBatchId, {
+      sealNo: sealNo || undefined,
+      sealPhoto: sealPhoto || undefined,
+    });
     setShowSealModal(false);
     setSealNo('');
+    setSealPhoto('');
     setSelectedBatchId('');
-    Taro.showToast({ title: '封签号已记录', icon: 'success' });
+    Taro.showToast({ title: '封签信息已保存', icon: 'success' });
     console.log('[TransportPage] seal recorded:', sealNo);
   };
 
@@ -398,6 +432,7 @@ const TransportPage: React.FC = () => {
                   onClick={() => {
                     setSelectedBatchId(b.id);
                     if (b.sealNo) setSealNo(b.sealNo);
+                    if (b.sealPhoto) setSealPhoto(b.sealPhoto);
                   }}
                 >
                   <Text>{b.categoryName} · {b.batchNo}</Text>
@@ -412,6 +447,71 @@ const TransportPage: React.FC = () => {
                 value={sealNo}
                 onInput={e => setSealNo(e.detail.value)}
               />
+            </View>
+            <View style={{ marginBottom: '24rpx' }}>
+              <Text className={styles.inputLabel}>封签照片</Text>
+              <View style={{ display: 'flex', alignItems: 'center', gap: '24rpx' }}>
+                <Button
+                  onClick={handleTakeSealPhoto}
+                  style={{
+                    height: '120rpx',
+                    width: '180rpx',
+                    borderRadius: '16rpx',
+                    background: 'linear-gradient(135deg, #0EA5E9, #0284C7)',
+                    color: '#fff',
+                    fontSize: '26rpx',
+                    fontWeight: 500,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 0,
+                  }}
+                >
+                  📷 拍照片
+                </Button>
+                {sealPhoto ? (
+                  <View style={{ position: 'relative' }}>
+                    <Image
+                      src={sealPhoto}
+                      style={{ width: '180rpx', height: '120rpx', borderRadius: '16rpx' }}
+                      mode="aspectFill"
+                    />
+                    <View
+                      onClick={() => setSealPhoto('')}
+                      style={{
+                        position: 'absolute',
+                        top: '-12rpx',
+                        right: '-12rpx',
+                        width: '40rpx',
+                        height: '40rpx',
+                        borderRadius: '50%',
+                        background: '#EF4444',
+                        color: '#fff',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '24rpx',
+                        fontWeight: 'bold',
+                      }}
+                    >
+                      <Text>×</Text>
+                    </View>
+                  </View>
+                ) : (
+                  <View style={{
+                    width: '180rpx', height: '120rpx', borderRadius: '16rpx',
+                    border: '2rpx dashed #CBD5E1', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center',
+                    color: '#94A3B8', fontSize: '24rpx',
+                  }}>
+                    <Text>暂无照片</Text>
+                  </View>
+                )}
+              </View>
+              <Text style={{ fontSize: '22rpx', color: '#94A3B8', marginTop: '12rpx', display: 'block' }}>
+                建议将封签号对准镜头拍摄，收货时便于核对
+              </Text>
             </View>
             <View style={{ display: 'flex', gap: '24rpx', marginTop: '32rpx' }}>
               <Button
